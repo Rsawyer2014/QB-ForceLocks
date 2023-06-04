@@ -1,41 +1,46 @@
 QBCore = exports['qb-core']:GetCoreObject()
 
-
-
-
-
-
 RegisterNetEvent('forcelocks:client:forcelock', function()
     local player = QBCore.Functions.GetPlayerData()
     local veh = QBCore.Functions.GetClosestVehicle()
     local plate = GetVehicleNumberPlateText(veh)
-    print('Vehicle= '..tostring(GetVehicleNumberPlateText(veh)))
-    for i = 0, #Config.AllowedJobs do 
-        if player.job.name == Config.AllowedJobs[i] and player.job.onduty == true then
-            if player.job.onduty == true then
-                TriggerServerEvent('qb-vehiclekeys:server:AcquireVehicleKeys', plate)
-                PlayAnimation()
-                print('Forcing Locks')
-                    break      
-                end
-            else
+    local jobAllowed = false
+
+    local playerPed = PlayerPedId()
+    local playerCoords = GetEntityCoords(playerPed)
+    local vehicleCoords = GetEntityCoords(veh)
+    local distance = GetDistanceBetweenCoords(playerCoords, vehicleCoords, true)
+    local maxDistance = 2
+
+    if distance <= maxDistance then
+        for i = 1, #Config.AllowedJobs do
+            if player.job.name ~= nil and player.job.name == Config.AllowedJobs[i] and player.job.onduty == true then
+                jobAllowed = true
+                break
+            end
         end
+
+        if jobAllowed then
+            QBCore.Functions.Progressbar('forcelocks', 'Forcing Open Locks', 20000, false, true,
+                {
+                    disableMovement = true,
+                    disableCarMovement = true,
+                    disableMouse = false,
+                    disableCombat = true
+                },
+                {
+                    task = 'WORLD_HUMAN_WELDING',
+                },
+                {}, {}, function()
+                    TriggerServerEvent('qb-vehiclekeys:server:AcquireVehicleKeys', plate)
+                    ClearPedTasks(playerPed)
+                end, function()
+                    ClearPedTasks(playerPed)
+                end)
+        else
+            QBCore.Functions.Notify("You are not allowed to force open locks with your current job.", "error")
+        end
+    else
+        QBCore.Functions.Notify("You are too far from the vehicle to force open locks.", "error")
     end
 end)
-
-function PlayAnimation()
-    local ped = GetPlayerPed(-1)
-    local time = 10000 -- in milliseconds (10 seconds)
-    
-    RequestAnimDict("anim@heists@ornate_bank@thermal_charge_heels")
-    while not HasAnimDictLoaded("anim@heists@ornate_bank@thermal_charge_heels") do
-      Citizen.Wait(100)
-    end
-    
-    TaskPlayAnim(ped, "anim@heists@ornate_bank@thermal_charge_heels", "idle", 8.0, -8.0, time, 1, 0, false, false, false)
-    
-    Citizen.Wait(time)
-    
-    ClearPedTasks(ped)
-  
-end
