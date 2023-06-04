@@ -1,9 +1,15 @@
-# QB-ForceLocks
-A simple force locks script for QBCore that gives set jobs the ablity to obtain keys without alerting the police. The use for this is when police or tow trucks, or mechanics get locked out of vehicles on scene or when left un attended.
+# qb-ForceLocks
+Allows players within a job (Defined in the config.lua) to gain access to vehicles.<br />
 
-- Check the config for the jobs that are able to use the script, add or remove what ever jobs should be able to use the /forcelocks command
-- a person with the allowed job MUST be ONDUTY to use the command
-- Face the vehicle you want to get into and use /forcelock
-- you should get a notification saying you aquired the keys
-- press "U" to unlock the vehicle (what ever key is bound to vehiclelocks)
-- enter the vehicle
+Step 1: Head over to resources/[qb]/qb-core/shared/items.lua and add:
+```
+["blowtorch"]	= {["name"] = "blowtorch", ["label"] = "Blowtorch", ["weight"] = 1000, ["type"] = "item", ["image"] = "blowtorch.png", ["unique"] = true, ["useable"] = true, ['shouldClose'] = true, ["combinable"] = nil, ["description"] = "Used to access cars" },
+```
+
+Step 2: Copy the "blowtorch.png" image provided into resources/[qb]/qb-inventory/html/images/
+
+Step 3: Extract/copy the qb-ForceLocks folder into your resources/[qb-addons]/  folder.
+
+Step 4: Restart your server.<br /><br />
+
+Now you can use the blowtorch item while next to a locked vehicle to gain keys to that vehicle if you're PD or a Mechanic.  Feel free to add or remove jobs in the Config.lua.
